@@ -19,23 +19,16 @@ function deriveActivePlayer(gameTurn) {
   return currentPlayer;
 }
 
-function App() {
-  const [players, setPlayers] = useState({
-    X: "Player 1",
-    O: "Player 2",
-  });
-  //const [activePlayer, setActivePlayer] = useState("X");
-  const [gameTurn, setGameTurn] = useState([]);
-
-  // Inicializando o tabuleiro do jogo
-  let gameBoard = [...initialGameBoard.map((array) => [...array])];
-  for (const turn of gameTurn) {
+function buildGameBoard(gameTurns) {
+  const gameBoard = initialGameBoard.map((array) => [...array]);
+  for (const turn of gameTurns) {
     const { square, player } = turn;
-    const { row, col } = square;
-    gameBoard[row][col] = player;
+    gameBoard[square.row][square.col] = player;
   }
-  let winner;
+  return gameBoard;
+}
 
+function getWinningSymbol(gameBoard) {
   for (const combination of WINNING_COMBINATIONS) {
     const firstSquareSymbol =
       gameBoard[combination[0].row][combination[0].column];
@@ -49,24 +42,52 @@ function App() {
       firstSquareSymbol === secondSquareSymbol &&
       firstSquareSymbol === thirdSquareSymbol
     ) {
-      winner = players[firstSquareSymbol];
+      return firstSquareSymbol;
     }
   }
+  return null;
+}
 
-  const hasDraw = gameTurn.length === 9 && !winner;
+function App() {
+  const [players, setPlayers] = useState({
+    X: "Player 1",
+    O: "Player 2",
+  });
+  //const [activePlayer, setActivePlayer] = useState("X");
+  const [gameTurn, setGameTurn] = useState([]);
+
+  const gameBoard = buildGameBoard(gameTurn);
+  const winningSymbol = getWinningSymbol(gameBoard);
+  const winner = winningSymbol ? players[winningSymbol] : undefined;
+  const hasDraw = gameTurn.length === 9 && !winningSymbol;
 
   function HandleSelectSquare(rowIndex, colIndex) {
-    if (gameTurn.length >= 9) {
+    if (winner || hasDraw) {
       return;
     }
 
     setGameTurn((prevTurns) => {
+      const prevBoard = buildGameBoard(prevTurns);
+      const prevWinningSymbol = getWinningSymbol(prevBoard);
+
+      if (prevWinningSymbol || prevTurns.length >= 9) {
+        return prevTurns;
+      }
+
+      const squareAlreadySelected = prevTurns.some(
+        (turn) =>
+          turn.square.row === rowIndex && turn.square.col === colIndex,
+      );
+
+      if (squareAlreadySelected) {
+        return prevTurns;
+      }
+
       const currentPlayer = deriveActivePlayer(prevTurns);
-      const updatedTurn = [
+      return [
         { square: { row: rowIndex, col: colIndex }, player: currentPlayer },
         ...prevTurns,
       ];
-      return updatedTurn;
     });
   }
   function HandleRestart() {

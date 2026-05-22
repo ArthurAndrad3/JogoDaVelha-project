@@ -202,7 +202,6 @@ ol {
   align-items: center;
   background-color: rgba(40, 38, 23, 0.95);
   animation: pop-in 0.5s cubic-bezier(0.68, -0.55, 0.65, 0.52) forwards;
-  pointer-events: none;
 }
 
 #game-over h2 {
@@ -220,7 +219,6 @@ ol {
 }
 
 #game-over button {
-  pointer-events: auto;
   display: block;
   margin: 0 auto;
   font-size: 1.5rem;
