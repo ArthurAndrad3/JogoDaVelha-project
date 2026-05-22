@@ -56,10 +56,7 @@ function App() {
   const hasDraw = gameTurn.length === 9 && !winner;
 
   function HandleSelectSquare(rowIndex, colIndex) {
-    if (gameTurn.length >= 9) {
-      return;
-    }
-
+    //setActivePlayer((curActivePlayer) => (curActivePlayer === "X" ? "O" : "X"));
     setGameTurn((prevTurns) => {
       const currentPlayer = deriveActivePlayer(prevTurns);
       const updatedTurn = [
